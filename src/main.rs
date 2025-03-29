@@ -20,8 +20,9 @@ fn main() -> io::Result<()> {
     let encode = args.iter().any(|i| i == "--encode");
     let decode = args.iter().any(|i| i == "--decode");
     let _static = args.iter().any(|i| i == "--static");
-    let input = get_file_content();
+    // let input = get_file_content();
 
+    let input = "abracadabra".to_string();
     /*
         let buffer = match _static {
             true => get_default_weights(),
@@ -34,14 +35,16 @@ fn main() -> io::Result<()> {
             buffer.iter().for_each(|t| println!("{:?}", t));
         }
     */
+    let mut a = File::create("decoded_out.txt")?;
+    Huffman::encode(Mode::Adapdative, &input, &mut a)?;
 
     if encode {
         let now = Instant::now();
         if save {
             let mut a = File::create("decoded_out.txt")?;
-            Huffman::encode(Mode::SemiAdaptative, &input, &mut a)?;
+            Huffman::encode(Mode::Adapdative, &input, &mut a)?;
         } else {
-            Huffman::encode(Mode::SemiAdaptative, &input, &mut io::stdout())?;
+            Huffman::encode(Mode::Adapdative, &input, &mut io::stdout())?;
         }
         println!("took {:?} to encode.", now.elapsed());
     }
@@ -53,6 +56,14 @@ fn main() -> io::Result<()> {
         buf.iter().for_each(|c| println!("{c:b}"));
     }
 
-    println!("{:?}", args);
+    println!("Reading from buffer");
+
+    let mut buf = Default::default();
+    let mut a = File::open("decoded_out.txt")?;
+    a.read_to_end(&mut buf)?;
+
+    // println!("{:?}", args);
+
+    Huffman::decode(Mode::Adapdative, &buf, &mut a)?;
     Ok(())
 }

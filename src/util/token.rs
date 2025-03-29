@@ -25,6 +25,15 @@ impl Token {
         }
     }
 
+    pub fn new_all(symbol: char, usage: usize, probability: f64) -> Self {
+        Token {
+            code: "".to_string(),
+            symbol,
+            usage,
+            probability,
+        }
+    }
+
     pub fn get_symbol(&self) -> char {
         self.symbol
     }
