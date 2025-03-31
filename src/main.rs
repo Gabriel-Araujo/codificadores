@@ -14,15 +14,16 @@ mod huffman;
 mod shannon_fano;
 mod util;
 
+const DEBUG: bool = false;
+
 fn main() -> io::Result<()> {
     let args = get_other_vars();
     let save = args.iter().any(|i| i == "--save");
     let encode = args.iter().any(|i| i == "--encode");
     let decode = args.iter().any(|i| i == "--decode");
     let _static = args.iter().any(|i| i == "--static");
-    // let input = get_file_content();
+    let input = get_file_content();
 
-    let input = "abracadabra".to_string();
     /*
         let buffer = match _static {
             true => get_default_weights(),
@@ -35,8 +36,6 @@ fn main() -> io::Result<()> {
             buffer.iter().for_each(|t| println!("{:?}", t));
         }
     */
-    let mut a = File::create("decoded_out.txt")?;
-    Huffman::encode(Mode::Adapdative, &input, &mut a)?;
 
     if encode {
         let now = Instant::now();
@@ -52,6 +51,7 @@ fn main() -> io::Result<()> {
         let mut buf = vec![];
         let mut a = File::open("decoded_out.txt")?;
         a.read_to_end(&mut buf)?;
+        Huffman::decode(Mode::Adapdative, &mut buf, &mut a)?;
 
         buf.iter().for_each(|c| println!("{c:b}"));
     }
@@ -64,6 +64,5 @@ fn main() -> io::Result<()> {
 
     // println!("{:?}", args);
 
-    Huffman::decode(Mode::Adapdative, &buf, &mut a)?;
     Ok(())
 }

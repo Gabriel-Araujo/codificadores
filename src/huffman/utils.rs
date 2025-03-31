@@ -1,3 +1,4 @@
+use crate::DEBUG;
 use crate::util::binary_tree::BinaryTree;
 use super::huffman_token::Token;
 use super::{ContextItem, ContextTable, RO};
@@ -25,10 +26,17 @@ pub fn update_tables(
                 // Se existe, incrementa o seu uso.
                 t.1.increment_usage();
                 update_totals(t0);
+                if DEBUG {
+                    println!(" k = {k}");
+                    println!("{t0:?}");
+                }
             }
             None => {
                 // Se nao existe, adiciona ele e incrementa ou adiciona o RO.
                 t0.insert(input.to_string(), Token::new(1));
+
+
+
                 let index = unseen.binary_search(&input.as_str()).unwrap();
                 unseen.remove(index);
                 match t0.iter_mut().find(|item| *item.0 == RO.to_string()) {
@@ -41,6 +49,10 @@ pub fn update_tables(
                     }
                 }
                 update_totals(t0);
+                if DEBUG {
+                    println!(" k = {k}");
+                    println!("{t0:?}");
+                }
             }
         }
     } else if frase.len() < k {
@@ -59,6 +71,10 @@ pub fn update_tables(
                     Some(t) => {
                         t.1.increment_usage();
                         update_totals(context.1);
+                        if DEBUG {
+                            println!(" k = {k}");
+                            println!("{tk:?}");
+                        }
                     }
                     // ‘Input’ nao existe.
                     None => {
@@ -73,6 +89,10 @@ pub fn update_tables(
                             }
                         }
                         update_totals(context.1);
+                        if DEBUG {
+                            println!(" k = {k}");
+                            println!("{tk:?}");
+                        }
                         update_tables(&frase[1..].to_string(), k - 1, input, tables, unseen);
                     }
                 }
@@ -84,6 +104,10 @@ pub fn update_tables(
                 new_context.insert(input.to_string(), Token::new(1));
                 new_context.insert(RO.to_string(), Token::new(1));
                 update_totals(new_context);
+                if DEBUG {
+                    println!(" k = {k}");
+                    println!("{tk:?}");
+                }
                 update_tables(&frase[1..].to_string(), k - 1, input, tables, unseen);
             }
         }
@@ -133,12 +157,15 @@ pub fn exclusion_table(
         .get_mut(&next_frase)
         .unwrap();
 
+
     context.1.iter().for_each(|item| {
         if *item.0 != RO.to_string() {
             next_context.remove(item.0);
         }
     });
+
     update_totals(next_context);
+
     Some(exclusion)
 }
 

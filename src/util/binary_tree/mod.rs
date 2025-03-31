@@ -1,8 +1,6 @@
 use std::collections::VecDeque;
-use std::io;
-use std::io::ErrorKind;
 use std::rc::Rc;
-use crate::huffman::BitReader;
+use crate::DEBUG;
 use super::token::Token;
 
 #[derive(Debug, Clone)]
@@ -148,8 +146,9 @@ impl BinaryTree {
 
     pub fn decode(tree: BinaryTree, input: &Vec<u8>) -> Option<char> {
         let mut current_node = tree.get_root();
-
         let mut path = VecDeque::from(input.clone());
+
+       // println!("{tree:?}/n path = {path:?}");
 
         while !current_node.is_leaf() && !path.is_empty() {
             let next = path.pop_front().unwrap();
@@ -165,31 +164,4 @@ impl BinaryTree {
             Some(current_node.get_symbol())
         } else { None }
     }
-    pub fn decode_v0(root: &Node, reader: &mut BitReader) -> io::Result<Option<char>>  {
-        let mut current_node = root;
-
-        loop {
-                    if root.left.is_none() && root.right.is_none() {
-                        // Nó folha - retorna o caractere
-                        return Ok(Some(root.get_symbol()));
-                    }
-
-                    // Lê o próximo bit para decidir o caminho
-                    let bit = match reader.read_bit() {
-                        Ok(b) => b,
-                        Err(e) if e.kind() == io::ErrorKind::UnexpectedEof => {
-                            // Fim do fluxo de bits
-                            return Ok(None);
-                        }
-                        Err(e) => return Err(e),
-                    };
-
-                    // Percorre a árvore baseado no bit lido
-                    current_node = if bit == 0 {
-                        root.left.as_ref().unwrap()
-                    } else {
-                        root.right.as_ref().unwrap()
-                    };
-                }
-        }
 }
